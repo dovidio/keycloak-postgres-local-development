@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:12
+    restart: always 
+    ports:
+      - 5432:5432
+    volumes:
+      - /c/db:/var/lib/postgresql/data
+      # This will bind the files inside the pgscripts to docker-entrypoint-initdb.d
+      # The scripts will be run on startup
+      - $PWD/postgres:/docker-entrypoint-initdb.d
+    env_file:
+      - .env.dev
+  wait-for-db:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - db 
+    command: db:5432
+  keycloak:
+    image: jboss/keycloak
+    ports:
+      - 8080:8080
+    env_file:
+      - .env.dev
